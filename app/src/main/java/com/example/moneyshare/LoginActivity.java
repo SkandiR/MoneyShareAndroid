@@ -415,7 +415,7 @@ public class LoginActivity extends AppCompatActivity implements
                     List <Post> posts = response.body();
                     if (posts != null && posts.size() != 0) {
                         Toast.makeText(getApplicationContext(), "Success " + response.code() + " " + posts.get(0).getText() + " " + posts.get(0).getId() + " " + posts.get(0).getUserId(), Toast.LENGTH_LONG).show();
-                        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
+                        Intent mainIntent = new Intent(LoginActivity.this, EditProfileActivity.class);
                         mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(mainIntent);
 
