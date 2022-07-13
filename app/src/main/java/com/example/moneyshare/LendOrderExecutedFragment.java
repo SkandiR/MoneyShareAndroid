@@ -3,10 +3,17 @@ package com.example.moneyshare;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,6 +30,9 @@ public class LendOrderExecutedFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private List<LendOrderExecutedModel> lendOrderExecutedModelList = new ArrayList<>();
+    private LendOrderExecutedAdapter mLendOrderExecutedAdapter;
 
     public LendOrderExecutedFragment() {
         // Required empty public constructor
@@ -59,6 +69,37 @@ public class LendOrderExecutedFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_lend_order_executed, container, false);
+        View view = inflater.inflate(R.layout.fragment_lend_order_executed, container, false);
+
+        RecyclerView recyclerView = view.findViewById(R.id.recyclerViewLendOrderExecuted);
+        mLendOrderExecutedAdapter = new LendOrderExecutedAdapter(lendOrderExecutedModelList);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mLendOrderExecutedAdapter);
+
+        prepareLendExecutedData();
+
+        return view;
+    }
+
+    private void prepareLendExecutedData() {
+        LendOrderExecutedModel item = new LendOrderExecutedModel(1,2,3, "name");
+        lendOrderExecutedModelList.add(item);
+        lendOrderExecutedModelList.add(item);
+        lendOrderExecutedModelList.add(item);
+        lendOrderExecutedModelList.add(item);
+        lendOrderExecutedModelList.add(item);
+        lendOrderExecutedModelList.add(item);
+        lendOrderExecutedModelList.add(item);
+        lendOrderExecutedModelList.add(item);
+        lendOrderExecutedModelList.add(item);
+        lendOrderExecutedModelList.add(item);
+        lendOrderExecutedModelList.add(item);
+        lendOrderExecutedModelList.add(item);
+        lendOrderExecutedModelList.add(item);
+        lendOrderExecutedModelList.add(item);
+
+        mLendOrderExecutedAdapter.notifyDataSetChanged();
     }
 }

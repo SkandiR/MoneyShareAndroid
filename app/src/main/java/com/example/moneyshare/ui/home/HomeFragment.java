@@ -8,10 +8,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.moneyshare.AddMoneyActivity;
+import com.example.moneyshare.BorrowRequestInputActivity;
+import com.example.moneyshare.LendRequestActivity;
 import com.example.moneyshare.LentActivity;
 import com.example.moneyshare.R;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
@@ -31,6 +35,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     // lent and borrow buttons
     CardView lent_btn;
     CardView add_money;
+
+    AppCompatButton lend_request;
+    AppCompatButton borrow_request;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -79,6 +86,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
         add_money = mHomeFragmentView.findViewById(R.id.add_money);
         add_money.setOnClickListener((View.OnClickListener) this);
+
+        lend_request = mHomeFragmentView.findViewById(R.id.lend_request_button);
+        lend_request.setOnClickListener((View.OnClickListener) this);
+
+        borrow_request = mHomeFragmentView.findViewById(R.id.borrow_request_button);
+        borrow_request.setOnClickListener((View.OnClickListener) this);
 
         return mHomeFragmentView;
     }
@@ -140,13 +153,17 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
                 break;
             case R.id.lend_request_button:
-
+                Intent lendRequestIntent = new Intent(view.getContext(), LendRequestActivity.class);
+                startActivity(lendRequestIntent);
                 break;
             case R.id.borrow_request_button:
-
+                Intent borrowRequestIntent = new Intent(view.getContext(), BorrowRequestInputActivity.class);
+                startActivity(borrowRequestIntent);
                 break;
             case R.id.add_money:
                 //show_add_money_popup();
+                Intent addMoneyIntent = new Intent(view.getContext(), AddMoneyActivity.class);
+                startActivity(addMoneyIntent);
                 break;
         }
     }
