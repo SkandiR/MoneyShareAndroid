@@ -12,10 +12,24 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import retrofit2.Call;
 
+import com.example.moneyshare.BorrowOrderExecutedModel;
+import com.example.moneyshare.BorrowOrderPlacedAdapter;
+import com.example.moneyshare.BorrowOrderPlacedModel;
+import com.example.moneyshare.JsonData;
+import com.example.moneyshare.LendCompletedAdapter;
+import com.example.moneyshare.LendCompletedModel;
 import com.example.moneyshare.R;
 import com.example.moneyshare.databinding.FragmentGalleryBinding;
 import com.example.moneyshare.ui.home.HomeFragment;
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GalleryFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
@@ -23,6 +37,15 @@ public class GalleryFragment extends Fragment {
 
     private String mParam1;
     private String mParam2;
+
+    public Call<JsonData.lentDetailsList> call;
+    String user_id;
+
+    private FirebaseAuth mAuth;
+
+    private List<LendCompletedModel> lendCompletedModelList = new ArrayList<>();
+    private LendCompletedAdapter mLendCompletedAdapter;
+
 
     View mGalleryFragmentView=null;
     private GalleryFragment.OnFragmentInteractionListener mListener;
@@ -55,11 +78,18 @@ public class GalleryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        Log.d("OnCreateView","Called");
-        if(mGalleryFragmentView==null)
-            mGalleryFragmentView = inflater.inflate(R.layout.fragment_gallery, container, false);
-        // Inflate the layout for this fragment
-        return mGalleryFragmentView;
+        View view = inflater.inflate(R.layout.fragment_gallery, container, false);
+
+        RecyclerView recyclerView = view.findViewById(R.id.recyclerLendOrderCompleted);
+        mLendCompletedAdapter = new LendCompletedAdapter(lendCompletedModelList);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mLendCompletedAdapter);
+
+        prepareBorrowOrderPlacedData();
+
+        return view;
     }
 
     @Override
@@ -95,6 +125,10 @@ public class GalleryFragment extends Fragment {
         void onFragmentInteraction(String st);
     }
 
+    private void prepareBorrowOrderPlacedData() {
+        lendCompletedModelList.add(new LendCompletedModel(2L,3.0, "xyz"));
+        mLendCompletedAdapter.notifyDataSetChanged();
+    }
 
 
 }

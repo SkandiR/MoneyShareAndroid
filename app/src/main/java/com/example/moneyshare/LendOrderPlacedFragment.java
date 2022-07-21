@@ -6,13 +6,21 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.example.moneyshare.ui.JsonConnection.jsonPlaceHolderApi;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,6 +37,11 @@ public class LendOrderPlacedFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    public Call<JsonData.lentDetailsList> call;
+    String user_id;
+
+    private FirebaseAuth mAuth;
 
     private List<LendOrderPlacedModel> lendOrderPlacedList = new ArrayList<>();
     private LendOrderPlacedAdapter mLendOrderPlacedAdapter;
@@ -62,6 +75,8 @@ public class LendOrderPlacedFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        mAuth = FirebaseAuth.getInstance();
+        user_id = mAuth.getCurrentUser().getUid();
     }
 
     @Override
@@ -84,21 +99,32 @@ public class LendOrderPlacedFragment extends Fragment {
     }
 
     private void prepareLendOrderPlacedData() {
-        LendOrderPlacedModel item = new LendOrderPlacedModel(100, 10, 10);
-        lendOrderPlacedList.add(item);
-        lendOrderPlacedList.add(item);
-        lendOrderPlacedList.add(item);
-        lendOrderPlacedList.add(item);
-        lendOrderPlacedList.add(item);
-        lendOrderPlacedList.add(item);
-        lendOrderPlacedList.add(item);
-        lendOrderPlacedList.add(item);
-        lendOrderPlacedList.add(item);
-        lendOrderPlacedList.add(item);
-        lendOrderPlacedList.add(item);
-        lendOrderPlacedList.add(item);
-        lendOrderPlacedList.add(item);
+        call = jsonPlaceHolderApi.getLentRequests(user_id);
+        call.enqueue(new Callback<JsonData.lentDetailsList>() {
+            @Override
+            public void onResponse(Call<JsonData.lentDetailsList> call, Response<JsonData.lentDetailsList> response) {
+                JsonData.lentDetailsList lentDetailsList = new JsonData.lentDetailsList();
+                lentDetailsList = response.body();
 
-        mLendOrderPlacedAdapter.notifyDataSetChanged();
+                if (lentDetailsList != null && lentDetailsList.lentDetailsList != null) {
+                    for (int i=0; i < lentDetailsList.lentDetailsList.size(); i++) {
+                        if (lentDetailsList.lentDetailsList.get(i).getStatus() == JsonData.LentStatus.PENDING) {
+                            LendOrderPlacedModel item = new LendOrderPlacedModel(lentDetailsList.lentDetailsList.get(i).getAmount(),
+                                                        lentDetailsList.lentDetailsList.get(i).getRoi(),
+                                                        lentDetailsList.lentDetailsList.get(i).getCreditScore(),
+                                                        lentDetailsList.lentDetailsList.get(i).getBorrowLists(),
+                                                        lentDetailsList.lentDetailsList.get(i).getId());
+                            lendOrderPlacedList.add(item);
+                        }
+                    }
+                    mLendOrderPlacedAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonData.lentDetailsList> call, Throwable t) {
+
+            }
+        });
     }
 }

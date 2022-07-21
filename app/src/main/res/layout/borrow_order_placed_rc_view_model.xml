@@ -30,7 +30,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
                 <TextView
-                    android:id="@+id/lendOrderExecutedAmount"
+                    android:id="@+id/borrowOrderPlacedAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#222222"
@@ -53,60 +53,10 @@
                         android:padding="10dip"
                         android:textSize="16dip"
                         android:textStyle="bold"
-                        android:text="Name: ">
+                        android:text="Preferred ROI: ">
                     </TextView>
                     <TextView
-                        android:id="@+id/lendOrderExecutedUserName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:padding="10dip"
-                        android:textSize="16dip"
-                        android:textStyle="bold" >
-                    </TextView>
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:layout_weight="1">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:padding="10dip"
-                        android:textSize="16dip"
-                        android:textStyle="bold"
-                        android:text="Credit Score: ">
-                    </TextView>
-                    <TextView
-                        android:id="@+id/lendOrderExecutedUserCreditScore"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:padding="10dip"
-                        android:textSize="16dip"
-                        android:textStyle="bold" >
-                    </TextView>
-                </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:layout_weight="1">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:padding="10dip"
-                        android:textSize="16dip"
-                        android:textStyle="bold"
-                        android:text="Offered ROI: ">
-                    </TextView>
-                    <TextView
-                        android:id="@+id/lendOrderExecutedROI"
+                        android:id="@+id/borrowOrderPlacedRoI"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:padding="10dip"
@@ -123,10 +73,10 @@
                     android:padding="3dp">
 
                     <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/lendOrderExecutedNotify"
+                        android:id="@+id/borrowOrderPlacedCancel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Nofity"
+                        android:text="Cancel"
                         android:backgroundTint="#00AABB"/>
 
                 </LinearLayout>

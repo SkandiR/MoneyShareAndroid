@@ -55,11 +55,11 @@
         android:padding="25dp"
         app:hintTextAppearance="@style/TextLabel"
         android:id="@+id/user_dob_input_layout">
-        <EditText android:id="@+id/user_dob_input"
+        <EditText android:id="@+id/user_credit_score_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="date"
-            android:hint="Date of Birth"
+            android:hint="Credit score"
             android:textColorHint="#3A2929"
             android:textColor="@color/black"
             android:textSize="20sp"

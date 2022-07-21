@@ -8,6 +8,11 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static com.example.moneyshare.ui.JsonConnection.jsonPlaceHolderApi;
 
 public class LendRequestActivity extends AppCompatActivity implements
         View.OnClickListener
@@ -17,10 +22,16 @@ public class LendRequestActivity extends AppCompatActivity implements
     EditText lendRequestRoI;
     EditText lendRequestCreditScore;
 
+    public Call<JsonData.LendRequest> call;
+    String user_id;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lend_request);
+
+        Intent intent = getIntent();
+        user_id = intent.getStringExtra("user_id");
 
         lendRequestAmount = findViewById(R.id.lend_activity_entered_amount);
         lendRequestRoI = findViewById(R.id.lend_activity_preferred_roi);
@@ -39,8 +50,27 @@ public class LendRequestActivity extends AppCompatActivity implements
 
         Toast.makeText(this, "Submitting lend request for amount" + amount + " Roi " + roi + " creditscore " + creditscore, Toast.LENGTH_LONG).show();
 
+        JsonData.LendRequest lendRequest = new JsonData.LendRequest();
+        lendRequest.setAmount(Long.valueOf(amount));
+        lendRequest.setRoi(Double.valueOf(roi));
+        lendRequest.setMinCreditScore(Double.valueOf(creditscore));
+        lendRequest.setUserId(user_id);
 
-        Intent mainIntent = new Intent(this, MainActivity.class);
-        startActivity(mainIntent);
+        call = jsonPlaceHolderApi.addLendRequest(lendRequest);
+        call.enqueue(new Callback<JsonData.LendRequest>() {
+            @Override
+            public void onResponse(Call<JsonData.LendRequest> call, Response<JsonData.LendRequest> response) {
+                Toast.makeText(getApplicationContext(), "Succefully added lend request for amount" + amount + " Roi " + roi + " creditscore " + creditscore, Toast.LENGTH_LONG).show();
+                Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(mainIntent);
+            }
+
+            @Override
+            public void onFailure(Call<JsonData.LendRequest> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Failed lend request for amount" + amount + " Roi " + roi + " creditscore " + creditscore, Toast.LENGTH_LONG).show();
+            }
+        });
+
+
     }
 }

@@ -18,16 +18,15 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import static com.example.moneyshare.ui.JsonConnection.jsonPlaceHolderApi;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link LendOrderExecutedFragment#newInstance} factory method to
+ * Use the {@link BorrowOrderPlacedFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class LendOrderExecutedFragment extends Fragment {
+public class BorrowOrderPlacedFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -38,15 +37,15 @@ public class LendOrderExecutedFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public Call<JsonData.lentDetailsList> call;
+    public Call<JsonData.BorrowRequests> call;
     String user_id;
 
     private FirebaseAuth mAuth;
 
-    private List<LendOrderExecutedModel> lendOrderExecutedModelList = new ArrayList<>();
-    private LendOrderExecutedAdapter mLendOrderExecutedAdapter;
+    private List<BorrowOrderPlacedModel> borrowOrderPlacedModelList = new ArrayList<>();
+    private BorrowOrderPlacedAdapter mBorrowOrderPlacedAdapter;
 
-    public LendOrderExecutedFragment() {
+    public BorrowOrderPlacedFragment() {
         // Required empty public constructor
     }
 
@@ -56,11 +55,11 @@ public class LendOrderExecutedFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment LendOrderExecutedFragment.
+     * @return A new instance of fragment BorrowOrderPlacedFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static LendOrderExecutedFragment newInstance(String param1, String param2) {
-        LendOrderExecutedFragment fragment = new LendOrderExecutedFragment();
+    public static BorrowOrderPlacedFragment newInstance(String param1, String param2) {
+        BorrowOrderPlacedFragment fragment = new BorrowOrderPlacedFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -83,46 +82,45 @@ public class LendOrderExecutedFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_lend_order_executed, container, false);
+        View view = inflater.inflate(R.layout.fragment_borrow_order_placed, container, false);
 
-        RecyclerView recyclerView = view.findViewById(R.id.recyclerViewLendOrderExecuted);
-        mLendOrderExecutedAdapter = new LendOrderExecutedAdapter(lendOrderExecutedModelList);
+        RecyclerView recyclerView = view.findViewById(R.id.recyclerBorrowOrderPlaced);
+        mBorrowOrderPlacedAdapter = new BorrowOrderPlacedAdapter(borrowOrderPlacedModelList);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(mLendOrderExecutedAdapter);
+        recyclerView.setAdapter(mBorrowOrderPlacedAdapter);
 
-        prepareLendExecutedData();
+        prepareBorrowOrderPlacedData();
 
         return view;
     }
-
-    private void prepareLendExecutedData() {
-        call = jsonPlaceHolderApi.getLentRequests(user_id);
-        call.enqueue(new Callback<JsonData.lentDetailsList>() {
+    private void prepareBorrowOrderPlacedData() {
+        call = jsonPlaceHolderApi.getBorrowRequest(user_id);
+        call.enqueue(new Callback<JsonData.BorrowRequests>() {
             @Override
-            public void onResponse(Call<JsonData.lentDetailsList> call, Response<JsonData.lentDetailsList> response) {
-                JsonData.lentDetailsList lentDetailsList = new JsonData.lentDetailsList();
-                lentDetailsList = response.body();
-
-                if (lentDetailsList != null && lentDetailsList.lentDetailsList != null) {
-                    for (int i=0; i < lentDetailsList.lentDetailsList.size(); i++) {
-                        if (lentDetailsList.lentDetailsList.get(i).getStatus() == JsonData.LentStatus.EXECUTED) {
-                            LendOrderExecutedModel item = new LendOrderExecutedModel(lentDetailsList.lentDetailsList.get(i).getAmount(),
-                                    lentDetailsList.lentDetailsList.get(i).getRoi(),
-                                    lentDetailsList.lentDetailsList.get(i).getCreditScore(),
-                                    lentDetailsList.lentDetailsList.get(i).getUserId());
-                            lendOrderExecutedModelList.add(item);
+            public void onResponse(Call<JsonData.BorrowRequests> call, Response<JsonData.BorrowRequests> response) {
+                JsonData.BorrowRequests borrowRequests = new JsonData.BorrowRequests();
+                borrowRequests = response.body();
+                if (borrowRequests != null && borrowRequests.borrowDetailsList != null) {
+                    for (int i = 0; i < borrowRequests.borrowDetailsList.size(); i++) {
+                        if (borrowRequests.borrowDetailsList.get(i).getStatus() == JsonData.BorrowStatus.PENDING) {
+                            BorrowOrderPlacedModel borrowOrderPlacedModel = new BorrowOrderPlacedModel(
+                                    borrowRequests.borrowDetailsList.get(i).getAmount(),
+                                    borrowRequests.borrowDetailsList.get(i).getRoi()
+                            );
+                            borrowOrderPlacedModelList.add(borrowOrderPlacedModel);
                         }
                     }
-                    mLendOrderExecutedAdapter.notifyDataSetChanged();
+                    mBorrowOrderPlacedAdapter.notifyDataSetChanged();
                 }
             }
 
             @Override
-            public void onFailure(Call<JsonData.lentDetailsList> call, Throwable t) {
+            public void onFailure(Call<JsonData.BorrowRequests> call, Throwable t) {
 
             }
         });
+
     }
 }

@@ -8,7 +8,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -21,8 +20,8 @@ public class LendOrderPlacedAdapter extends RecyclerView.Adapter<LendOrderPlaced
         TextView lendOrderPlacedAmount, lendOrderPlacedPreferredCreditScore, lendOrderPlacedOfferedROI;
         ListView lendOrderInterestedListView;
         CustomListViewAdapter adapter;
-
-        List<String> mobileArray = Arrays.asList("Android","IPhone","WindowsMobile","Blackberry", "WebOS","Ubuntu","Windows7","Max OS X");
+        List<JsonData.BorrowDetails> borrowLists;
+        String lender_id;
 
         MyViewHolder(View view) {
             super(view);
@@ -81,9 +80,13 @@ public class LendOrderPlacedAdapter extends RecyclerView.Adapter<LendOrderPlaced
         LendOrderPlacedModel item = lendOrderPlacedList.get(position);
         holder.lendOrderPlacedAmount.setText(item.getAmount() + "");
         holder.lendOrderPlacedPreferredCreditScore.setText(item.getPreferredCreditScore() + "");
+        holder.lendOrderPlacedOfferedROI.setText(item.getOfferedROI()+"");
+        holder.lender_id = item.getLender_id();
+        holder.borrowLists = item.getBorrowLists();
         //holder.adapter = new ArrayAdapter<String>(holder.itemView.getContext(), R.layout.lend_order_interested_list_view, holder.mobileArray);
-        holder.adapter = new CustomListViewAdapter(holder.itemView.getContext(), holder.mobileArray);
+        holder.adapter = new CustomListViewAdapter(holder.itemView.getContext(), holder.borrowLists, holder.lender_id);
         holder.lendOrderInterestedListView.setAdapter(holder.adapter);
+
     }
 
     @Override

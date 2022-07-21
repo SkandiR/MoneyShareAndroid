@@ -7,17 +7,27 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.moneyshare.AddMoneyActivity;
+import com.example.moneyshare.BorrowActivity;
 import com.example.moneyshare.BorrowRequestInputActivity;
+import com.example.moneyshare.JsonData;
 import com.example.moneyshare.LendRequestActivity;
 import com.example.moneyshare.LentActivity;
 import com.example.moneyshare.R;
+import com.google.firebase.auth.FirebaseAuth;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static com.example.moneyshare.ui.JsonConnection.jsonPlaceHolderApi;
 
 
 public class HomeFragment extends Fragment implements View.OnClickListener {
@@ -25,19 +35,28 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    private String mParam1;
+    private String user_id;
     private String mParam2;
 
     View mHomeFragmentView=null;
+
+    private FirebaseAuth mAuth;
 
     private OnFragmentInteractionListener mListener;
 
     // lent and borrow buttons
     CardView lent_btn;
+    CardView borrowed_btn;
     CardView add_money;
 
     AppCompatButton lend_request;
     AppCompatButton borrow_request;
+
+    TextView wallet_balance;
+    TextView lent_amount;
+    TextView borrowed_amount;
+
+    public Call<JsonData.WalletResponse> call;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -66,9 +85,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         Log.d("Home : ","onCreate");
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
+            user_id = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        mAuth = FirebaseAuth.getInstance();
+        user_id = mAuth.getCurrentUser().getUid();
 
     }
 
@@ -84,6 +106,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         lent_btn = mHomeFragmentView.findViewById(R.id.lent_clickable);
         lent_btn.setOnClickListener((View.OnClickListener) this);
 
+        borrowed_btn = mHomeFragmentView.findViewById(R.id.borrowed_clickable);
+        borrowed_btn.setOnClickListener((View.OnClickListener) this);
+
         add_money = mHomeFragmentView.findViewById(R.id.add_money);
         add_money.setOnClickListener((View.OnClickListener) this);
 
@@ -92,6 +117,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
         borrow_request = mHomeFragmentView.findViewById(R.id.borrow_request_button);
         borrow_request.setOnClickListener((View.OnClickListener) this);
+
+        wallet_balance = mHomeFragmentView.findViewById(R.id.wallet_balance);
+        lent_amount = mHomeFragmentView.findViewById(R.id.lent_amount);
+        borrowed_amount = mHomeFragmentView.findViewById(R.id.borrowed_amount);
 
         return mHomeFragmentView;
     }
@@ -125,6 +154,37 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             mListener.onFragmentInteraction("Home");
         }
 
+        call = jsonPlaceHolderApi.getWalletAmount(user_id);
+        call.enqueue(new Callback<JsonData.WalletResponse>() {
+            @Override
+            public void onResponse(Call<JsonData.WalletResponse> call, Response<JsonData.WalletResponse> response) {
+                JsonData.WalletResponse walletDetails = response.body();
+                if (walletDetails == null) {
+                    Toast.makeText(getContext(), "Error fetching details", Toast.LENGTH_LONG).show();
+                } else {
+                    if (walletDetails.getTotalAmount() != null) {
+                        wallet_balance.setText(walletDetails.getTotalAmount().toString()+"$");
+                    } else {
+                        wallet_balance.setText("0");
+                    }
+                    if (walletDetails.getLentAmount() != null) {
+                        lent_amount.setText(walletDetails.getLentAmount().toString()+"$");
+                    } else {
+                        lent_amount.setText("0");
+                    }
+                    if (walletDetails.getBorrowedAmount() != null) {
+                        borrowed_amount.setText(walletDetails.getBorrowedAmount().toString()+"$");
+                    } else {
+                        borrowed_amount.setText("0");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonData.WalletResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     /**
@@ -147,22 +207,38 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.lent_clickable:
                 Intent lentIntent = new Intent(view.getContext(), LentActivity.class);
+                Bundle extraData = new Bundle();
+                extraData.putString("user_id",user_id);
+                lentIntent.putExtras(extraData);
                 startActivity(lentIntent);
                 break;
             case R.id.borrowed_clickable:
-
+                Intent borrowedIntent = new Intent(view.getContext(), BorrowActivity.class);
+                Bundle extraDataBrwd = new Bundle();
+                extraDataBrwd.putString("user_id",user_id);
+                borrowedIntent.putExtras(extraDataBrwd);
+                startActivity(borrowedIntent);
                 break;
             case R.id.lend_request_button:
                 Intent lendRequestIntent = new Intent(view.getContext(), LendRequestActivity.class);
+                Bundle extraDatalend = new Bundle();
+                extraDatalend.putString("user_id",user_id);
+                lendRequestIntent.putExtras(extraDatalend);
                 startActivity(lendRequestIntent);
                 break;
             case R.id.borrow_request_button:
                 Intent borrowRequestIntent = new Intent(view.getContext(), BorrowRequestInputActivity.class);
+                Bundle extraDatabrw = new Bundle();
+                extraDatabrw.putString("user_id",user_id);
+                borrowRequestIntent.putExtras(extraDatabrw);
                 startActivity(borrowRequestIntent);
                 break;
             case R.id.add_money:
                 //show_add_money_popup();
                 Intent addMoneyIntent = new Intent(view.getContext(), AddMoneyActivity.class);
+                Bundle extraDataaddm = new Bundle();
+                extraDataaddm.putString("user_id",user_id);
+                addMoneyIntent.putExtras(extraDataaddm);
                 startActivity(addMoneyIntent);
                 break;
         }

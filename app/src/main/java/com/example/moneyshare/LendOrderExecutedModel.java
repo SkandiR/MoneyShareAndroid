@@ -1,40 +1,41 @@
 package com.example.moneyshare;
 
 public class LendOrderExecutedModel {
-    private int amount, RoI, credit_score;
+    private Long amount;
+    private double RoI, credit_score;
     private String user_name;
 
     public LendOrderExecutedModel() {
 
     }
-    public LendOrderExecutedModel(int amount, int roI, int credit_score, String name) {
+    public LendOrderExecutedModel(Long amount, double roI, double credit_score, String name) {
         this.amount = amount;
         this.RoI = roI;
         this.credit_score = credit_score;
         this.user_name = name;
     }
 
-    public int getAmount() {
+    public Long getAmount() {
         return amount;
     }
 
-    public void setAmount(int amount) {
+    public void setAmount(Long amount) {
         this.amount = amount;
     }
 
-    public int getRoI() {
+    public double getRoI() {
         return RoI;
     }
 
-    public void setRoI(int roI) {
+    public void setRoI(double roI) {
         RoI = roI;
     }
 
-    public int getCredit_score() {
+    public double getCredit_score() {
         return credit_score;
     }
 
-    public void setCredit_score(int credit_score) {
+    public void setCredit_score(double credit_score) {
         this.credit_score = credit_score;
     }
 
@@ -42,7 +43,7 @@ public class LendOrderExecutedModel {
         return user_name;
     }
 
-    public void setUser_name(String name) {
-        this.user_name = name;
+    public void setUser_name(String user_name) {
+        this.user_name = user_name;
     }
 }

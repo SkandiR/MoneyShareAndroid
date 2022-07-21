@@ -48,9 +48,12 @@ public class MainActivity extends AppCompatActivity implements
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Intent intent = getIntent();
+        String user_id = intent.getStringExtra("user_id");
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 
-        homeFragment = HomeFragment.newInstance(null,null);
+        homeFragment = HomeFragment.newInstance(user_id,null);
         galleryFragment = GalleryFragment.newInstance(null, null);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(

@@ -16,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.moneyshare.ui.JsonConnection;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
@@ -29,18 +30,21 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 
-import java.util.List;
+import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -61,7 +65,7 @@ public class LoginActivity extends AppCompatActivity implements
     private static final int STATE_SIGNIN_FAILED = 5;
     private static final int STATE_SIGNIN_SUCCESS = 6;
 
-    public Call<List<Post>> call;
+    public Call<JsonData.IsNewUser> call;
     public JsonPlaceHolderApi jsonPlaceHolderApi;
 
     private FirebaseAuth mAuth;
@@ -120,7 +124,6 @@ public class LoginActivity extends AppCompatActivity implements
         mDummy1 = (Button) findViewById(R.id.dummy1);
         mDummy2 = (Button) findViewById(R.id.dummy2);
 
-
         mStartButton.setOnClickListener(this);
         mVerifyButton.setOnClickListener(this);
         mResendButton.setOnClickListener(this);
@@ -128,12 +131,8 @@ public class LoginActivity extends AppCompatActivity implements
 
         mAuth = FirebaseAuth.getInstance();
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://jsonplaceholder.typicode.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
 
-        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
+        jsonPlaceHolderApi = JsonConnection.getJsonPlaceHolderApi();
 
         mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
@@ -193,7 +192,6 @@ public class LoginActivity extends AppCompatActivity implements
         mVerificationInProgress = savedInstanceState.getBoolean(KEY_VERIFY_IN_PROGRESS);
     }
 
-
     private void startPhoneNumberVerification(String phoneNumber) {
         PhoneAuthOptions options =
                 PhoneAuthOptions.newBuilder(mAuth)
@@ -243,7 +241,6 @@ public class LoginActivity extends AppCompatActivity implements
                     }
                 });
     }
-
 
     private void signOut() {
         mAuth.signOut();
@@ -320,7 +317,6 @@ public class LoginActivity extends AppCompatActivity implements
                         mVerificationField.setTextColor(Color.parseColor("#4bacb8"));
                     }
                 }
-
                 break;
             case STATE_SIGNIN_FAILED:
                 mDetailText.setText(R.string.status_sign_in_failed);
@@ -331,7 +327,6 @@ public class LoginActivity extends AppCompatActivity implements
                 mStatusText.setText(R.string.signed_in);
                 break;
         }
-
         if (user == null) {
             mPhoneNumberViews.setVisibility(View.VISIBLE);
             mSignedInViews.setVisibility(View.GONE);
@@ -383,7 +378,6 @@ public class LoginActivity extends AppCompatActivity implements
                         InputMethodManager.HIDE_NOT_ALWAYS);
                 progressBar.setVisibility(View.VISIBLE);
                 startPhoneNumberVerification(mPhoneNumberField.getText().toString());
-
                 break;
             case R.id.button_verify_phone:
                 String code = mVerificationField.getText().toString();
@@ -391,7 +385,6 @@ public class LoginActivity extends AppCompatActivity implements
                     mVerificationField.setError("Cannot be empty.");
                     return;
                 }
-
                 verifyPhoneNumberWithCode(mVerificationId, code);
                 break;
             case R.id.button_resend:
@@ -404,24 +397,28 @@ public class LoginActivity extends AppCompatActivity implements
     }
 
     private void checkUserExist() {
-
         if(mAuth.getCurrentUser() != null) {
             user_id = mAuth.getCurrentUser().getUid();
             Log.d(TAG, "login user id" + user_id);
-            call = jsonPlaceHolderApi.getPosts();
-            call.enqueue(new Callback<List<Post>>() {
+            call = jsonPlaceHolderApi.isNewUser(user_id);
+            call.enqueue(new Callback<JsonData.IsNewUser>() {
                 @Override
-                public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
-                    List <Post> posts = response.body();
-                    if (posts != null && posts.size() != 0) {
-                        Toast.makeText(getApplicationContext(), "Success " + response.code() + " " + posts.get(0).getText() + " " + posts.get(0).getId() + " " + posts.get(0).getUserId(), Toast.LENGTH_LONG).show();
+                public void onResponse(Call<JsonData.IsNewUser> call, Response<JsonData.IsNewUser> response) {
+                    JsonData.IsNewUser isNewUser = response.body();
+
+                    if (isNewUser != null && isNewUser.isisNewUser()) {
+                        Toast.makeText(getApplicationContext(), "Success " + response.code() + " rval " + isNewUser.isisNewUser() , Toast.LENGTH_LONG).show();
                         Intent mainIntent = new Intent(LoginActivity.this, EditProfileActivity.class);
+                        Bundle extraData = new Bundle();
+                        extraData.putString("user_id",user_id);
+                        extraData.putString("first","Yes");
+
+                        mainIntent.putExtras(extraData);
                         mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(mainIntent);
-
                     } else {
-                        Intent mainIntent = new Intent(LoginActivity.this, EditProfileActivity.class);
-
+                        //Toast.makeText(getApplicationContext(), "Not new user " + response.code() + " rval " + isNewUser.isisNewUser() , Toast.LENGTH_LONG).show();
+                        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
                         Bundle extraData = new Bundle();
                         extraData.putString("user_id",user_id);
                         extraData.putString("first","Yes");
@@ -435,7 +432,7 @@ public class LoginActivity extends AppCompatActivity implements
                 }
 
                 @Override
-                public void onFailure(Call<List<Post>> call, Throwable t) {
+                public void onFailure(Call<JsonData.IsNewUser> call, Throwable t) {
                     Toast.makeText(getApplicationContext(), "Error" + t.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
